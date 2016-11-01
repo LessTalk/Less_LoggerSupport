@@ -7,8 +7,7 @@ https://github.com/orhanobut/logger <br>
 2 自动打印运行时崩溃信息,会记录到SD卡文件目录 <br>
 3 其他功能 建议参考looger,如果您不需要以上功能建议使用正版logger <br>
 
-如何使用 ？<br>
-### 初始化只需一步
+### 如何使用 ？
 ```java
   public class App extends Application {
     @Override
