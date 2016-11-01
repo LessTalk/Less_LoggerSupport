@@ -1,5 +1,5 @@
 
-package org.less.logger;
+package less.org.library;
 
 import android.os.Environment;
 
@@ -17,25 +17,36 @@ import static java.util.logging.Logger.getLogger;
  * DATE : 2016/9/21 <br/>
  * DESCRIPTION :
  */
-public class FileLog {
+class FileLog {
 
     public static final String NET_CRASH = "NetCrash";
     public static final String NET_SERVER_ERROR = "NetServerError";
     public static final String RUN_ERROR = "RunError";
 
-    public final static File DIR_ROOT = new File(Environment.getExternalStorageDirectory(), "less");
-    public final static File DIR_LOG_PATH = new File(DIR_ROOT, ".log");
-    public final static File NET_CRASH_FILE_PATH = new File(DIR_LOG_PATH, "net_crash.txt");
-    public final static File NET_SERVER_FILE_PATH = new File(DIR_LOG_PATH, "net_server.txt");
-    public final static File RUN_ERROR_PATH = new File(DIR_LOG_PATH, "run_error.txt");
+    public  static File DIR_ROOT;
+    public  static File DIR_LOG_PATH;
+    public  static File NET_CRASH_FILE_PATH ;
+    public  static File NET_SERVER_FILE_PATH ;
+    public  static File RUN_ERROR_PATH;
 
-    private static FileLog sFileLog = new FileLog();
+    private static FileLog sFileLog;
 
-    public static FileLog getInstance() {
+    protected static FileLog getInstance() {
+        if(sFileLog == null){
+            sFileLog = new FileLog();
+        }
         return sFileLog;
     }
 
     private HashMap<String, File> mHashMap;
+
+    protected static void init(String fileName){
+        DIR_ROOT = new File(Environment.getExternalStorageDirectory(), fileName);
+        DIR_LOG_PATH = new File(DIR_ROOT, ".log");
+        NET_CRASH_FILE_PATH = new File(DIR_LOG_PATH, "net_crash");
+        NET_SERVER_FILE_PATH = new File(DIR_LOG_PATH, "net_server");
+        RUN_ERROR_PATH = new File(DIR_LOG_PATH, "run_error");
+    }
 
     private FileLog() {
         mHashMap = new HashMap<String, File>();
@@ -56,7 +67,8 @@ public class FileLog {
         if (!mHashMap.containsKey(tag)) {
             throw new RuntimeException("no support tag type");
         }
-        getLogger(tag).info(message);
+        Logger logger = getLogger(tag);
+        logger.info(message);
     }
 
     private void initPath(String tag, File mFilePath) throws IOException {
@@ -65,16 +77,9 @@ public class FileLog {
             boolean pathB = DIR_LOG_PATH.mkdirs();
             LogUtil.d("pathB:" + pathB);
         }
-        if (!mFilePath.exists()) {
-            try {
-                boolean fileB = mFilePath.createNewFile();
-                LogUtil.d("fileB:" + fileB);
-            } catch (IOException e) {
-                e.printStackTrace();
-                LogUtil.e(e.getMessage());
-            }
-        }
-        logger.addHandler(new AsyncFileHandler(mFilePath.getAbsolutePath(), 0, 1, true));
+        AsyncFileHandler asyncFileHandler = new AsyncFileHandler(mFilePath.getAbsolutePath()+ "%g" + ".log",1024 * 1024, 9999, true);
+        asyncFileHandler.setFormatter(new LogFormatter());
+        logger.addHandler(asyncFileHandler);
     }
 
 }

@@ -1,4 +1,4 @@
-package org.less.logger;
+package less.org.library;
 
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -15,7 +15,7 @@ import java.util.logging.LogRecord;
  * DATE : 2016/9/21 <br/>
  * DESCRIPTION :
  */
-public class AsyncFileHandler extends FileHandler implements Runnable {
+ class AsyncFileHandler extends FileHandler implements Runnable {
 
     private static final int offValue = Level.OFF.intValue();
     private final BlockingQueue<LogRecord> queue = new ArrayBlockingQueue<>(5000);
@@ -39,7 +39,7 @@ public class AsyncFileHandler extends FileHandler implements Runnable {
         }
 
         final Thread t = checkWorker();
-        record.getSourceMethodName(); //Infer caller.
+        record.getSourceMethodName();
         boolean interrupted = Thread.interrupted();
         try {
             for (;;) {

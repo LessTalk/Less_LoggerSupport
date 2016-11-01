@@ -1,16 +1,16 @@
-package org.less.logger;
+
+package less.org.library;
 
 import android.text.TextUtils;
-
-import com.orhanobut.logger.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.net.ConnectException;
 
-import static org.less.logger.FileLog.NET_CRASH;
-import static org.less.logger.FileLog.NET_SERVER_ERROR;
-import static org.less.logger.FileLog.RUN_ERROR;
+import static less.org.library.FileLog.NET_CRASH;
+import static less.org.library.FileLog.NET_SERVER_ERROR;
+import static less.org.library.FileLog.RUN_ERROR;
+import static less.org.library.LogUtil.Type.F;
 
 /**
  * ===============================================
@@ -22,7 +22,7 @@ public class LogUtil {
 
     private static boolean isInit = false;
 
-    private static final boolean isTest = true;
+    protected static boolean isDebug = true;
 
     public static void d(String tag, String msg) {
         base(tag, msg, Type.D);
@@ -48,63 +48,65 @@ public class LogUtil {
         base(null, msg, Type.J);
     }
 
-    public static void netCrashF(Throwable throwable){
-        base(NET_CRASH, throwableToString(throwable), Type.F);
+    public static void netCrashF(Throwable throwable) {
+        base(NET_CRASH, throwableToString(throwable), F);
     }
 
-    public static void netCrashF(String msg){
-        base(NET_CRASH, msg, Type.F);
+    public static void netCrashF(String msg) {
+        base(NET_CRASH, msg, F);
     }
 
-    public static void netServerF(Throwable throwable){
-        base(NET_SERVER_ERROR, throwableToString(throwable), Type.F);
+    public static void netServerF(Throwable throwable) {
+        base(NET_SERVER_ERROR, throwableToString(throwable), F);
     }
 
-    public static void netServerF(String msg){
-        base(NET_SERVER_ERROR, msg, Type.F);
+    public static void netServerF(String msg) {
+        base(NET_SERVER_ERROR, msg, F);
     }
 
-    public static void runErrorF(Throwable throwable){
-        base(RUN_ERROR, throwableToString(throwable), Type.F);
+    public static void runErrorF(Throwable throwable) {
+        base(RUN_ERROR, throwableToString(throwable), F);
     }
 
     private static void base(String tag, String msg, Type type) {
-        if(!isInit){
+        if (!isDebug && type != F) {
+            return;
+        }
+        if (!isInit) {
             Logger.init(LogUtil.class.getSimpleName()).methodCount(3).hideThreadInfo().methodOffset(2);
             isInit = true;
         }
-        if (isTest) {
-            switch (type) {
-                case D:
-                    if (TextUtils.isEmpty(tag)) {
-                        Logger.d(msg);
-                    } else {
-                        Logger.t(tag).d(msg);
-                    }
-                    break;
-                case E:
-                    if (TextUtils.isEmpty(tag)) {
-                        Logger.e(msg);
-                    } else {
-                        Logger.t(tag).e(msg);
-                    }
-                    break;
-                case J:
-                    if (TextUtils.isEmpty(tag)) {
-                        Logger.json(msg);
-                    } else {
-                        Logger.t(tag).json(msg);
-                    }
-                    break;
-                case F:
-                    FileLog.getInstance().info(tag,msg);
-                    break;
-            }
+
+        switch (type) {
+            case D:
+                if (TextUtils.isEmpty(tag)) {
+                    Logger.d(msg);
+                } else {
+                    Logger.t(tag).d(msg);
+                }
+                break;
+            case E:
+                if (TextUtils.isEmpty(tag)) {
+                    Logger.e(msg);
+                } else {
+                    Logger.t(tag).e(msg);
+                }
+                break;
+            case J:
+                if (TextUtils.isEmpty(tag)) {
+                    Logger.json(msg);
+                } else {
+                    Logger.t(tag).json(msg);
+                }
+                break;
+            case F:
+                FileLog.getInstance().info(tag, msg);
+                break;
         }
     }
 
-    private enum Type {
-        D, E, J,F
+    protected enum Type {
+        D, E, J, F
     }
 
     private static String throwableToString(Throwable throwable) {
@@ -119,7 +121,6 @@ public class LogUtil {
                 printStream.println("  " + throwable.getCause().getMessage());
         } else if (throwable instanceof java.net.SocketException
                 || throwable instanceof java.net.SocketTimeoutException
-                || throwable instanceof org.apache.http.conn.ConnectTimeoutException
                 || throwable instanceof java.net.HttpRetryException
                 || throwable instanceof java.net.UnknownHostException) {
             if (throwable.getMessage() != null)
