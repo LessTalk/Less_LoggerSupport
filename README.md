@@ -8,7 +8,7 @@ https://github.com/orhanobut/logger <br>
 3 其他功能 建议参考looger,如果您不需要以上功能建议使用正版logger <br>
 
 如何使用 ？<br>
-### Step1
+### 初始化只需一步
 ```java
   public class App extends Application {
     @Override
